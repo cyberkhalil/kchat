@@ -75,11 +75,11 @@ class Client:
         self.check_and_send('#request_client_members')
 
 
+# TODO check client every 5 min
 class Server:
     clients_list = []
 
     def send_to_all(self, msg):
-
         print('sending "' + msg + '" to ' + str(len(self.clients_list)) + ' clients')
 
         for client in self.clients_list:
@@ -92,18 +92,18 @@ class Server:
                 continue
 
     def do_when_receive_client(self, client_socket, client_address):
+
+        client_address = str(client_address)
+
+        print(client_address + '> established new connection')
+
+        client_socket.send(b'Enter your username')
+        username = client_socket.recv(1024).decode()
+        print(client_address + '> username: ' + username)
+
+        client_info = [username, client_socket]
+        self.clients_list.append(client_info)
         try:
-            client_address = str(client_address)
-
-            print(client_address + '> established new connection')
-
-            client_socket.send(b'Enter your username')
-            username = client_socket.recv(1024).decode()
-            print(client_address + '> username: ' + username)
-
-            client_info = [username, client_socket]
-            self.clients_list.append(client_info)
-
             client_socket.send(('Server: Welcome ' + username + ', you can start chatting  ^_^').encode())
 
             while 1:

@@ -1,5 +1,6 @@
 # TODO client who sent the message
 # TODO press enter = click on send message button
+# TODO send exit to server when exit
 ########################################################################################################################
 import sys
 from threading import Thread
