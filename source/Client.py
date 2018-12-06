@@ -1,7 +1,6 @@
-# TODO client who sent the message
+# TODO send message to specified client
 # TODO press enter = click on send message button
-# TODO send exit to server when exit
-# TODO reconnect button
+# TODO implement methods in Client class using GUI
 ########################################################################################################################
 import sys
 from threading import Thread
@@ -11,13 +10,12 @@ from PyQt5.QtGui import QStandardItemModel
 
 from Chat import Client
 
-print('type --help to see the documentation')  # printing helping tip
-
 client = Client()
 
 
 def request_username():
-    username, ok_pressed = QtWidgets.QInputDialog.getText(QtWidgets.QWidget(), 'Connection', 'Enter your username:')
+    username, ok_pressed = QtWidgets.QInputDialog.getText(QtWidgets.QInputDialog(), 'Connection',
+                                                          'Enter your username:')
     if ok_pressed:
         if username != 'None':
             return username
@@ -52,7 +50,7 @@ def window():
         if client.connect():
             username = str(request_username())
             print(username)
-            client.check_and_send(username)
+            client.send_msg(username)
             msg_txt_edt.setEnabled(1)
             send_msg_btn.setEnabled(1)
             Thread(target=keep_receiving_from_server, args=[]).start()
@@ -62,7 +60,7 @@ def window():
 
     def send_msg():
         print('sending message')
-        client.check_and_send(msg_txt_edt.text())
+        client.send_msg(msg_txt_edt.text())
         msg_txt_edt.setText('')
 
     def keep_receiving_from_server():

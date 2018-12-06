@@ -3,6 +3,7 @@ from threading import Thread  # import Thread class
 
 chat_port = 1234  # the server used port
 
+# TODO remove this
 documentation = 'This is chatting program \n' \
                 '       --help : to print this documentation again \n' \
                 '       connect : to connect the chatting server \n' \
@@ -10,13 +11,9 @@ documentation = 'This is chatting program \n' \
                 '       reconnect : to reconnect the chatting server from other port'  # the documentation
 
 
-# TODO remove threads
+# TODO make a reconnect method
 class Client:
     client_socket = None
-    # TODO remove this
-    receiving_thread = None
-    # TODO remove this
-    sending_thread = None
 
     """ Methods """
 
@@ -30,54 +27,26 @@ class Client:
             print("Connection refused")
             return 0
 
-    # TODO remove this
-    def start_sending_thread(self):
-        self.sending_thread = Thread(self.keep_checking_and_sending())
-        self.sending_thread.start()
-
-    # TODO remove this
-    def start_receiving_thread(self):
-        self.receiving_thread = Thread(self.keep_receiving_from_server())
-        self.receiving_thread.start()
-
-    # TODO remove this
+    # TODO implement sending exit message to the server and stop the stop socket
     def exiting(self):
-        self.receiving_thread.join()
-        self.sending_thread.join()
+        print("Not implemented yet")
 
-    # TODO remove this
-    def keep_checking_and_sending(self):
-        while 1:
-            word = input('')
-            if self.check_and_send(word) == -1:
-                break
+    """     
+    TODO implement those methods :-
+        * get help message from the server.
+        * get connection with the server.
+        * get reconnection with the server.
+    """
 
-    # TODO send always
-    def check_and_send(self, word):
-        # TODO make a methods for those jobs
-        # if word == '--help':
-        #     print(documentation)
-        # elif word == 'connect':
-        #     self.connect()
-        # elif word == 'reconnect':
-        #     self.exiting()
-        #     self.connect()
-        # elif word == 'exit':
-        #     self.exiting()
-        #     return -1
-        # else:
+    def send_msg(self, word):
         self.client_socket.sendall(("$" + word).encode())
 
-    # TODO remove this
-    def keep_receiving_from_server(self):
-        while 1:
-            print(self.receive_from_server())
-
+    # TODO check if received a command or a message
     def receive_from_server(self):
         return self.client_socket.recv(1024).decode()
 
     def request_members(self):
-        self.check_and_send('#request_client_members')
+        self.send_msg('#request_client_members')
 
 
 # TODO check client every 5 min
@@ -104,7 +73,7 @@ class Server:
 
         print(client_address + '> established new connection')
 
-        client_socket.send(b'Enter your username')
+        client_socket.send(b'#request username')
         username = client_socket.recv(1024).decode()
         print(client_address + '> username: ' + username)
 
