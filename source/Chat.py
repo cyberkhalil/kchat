@@ -10,9 +10,12 @@ documentation = 'This is chatting program \n' \
                 '       reconnect : to reconnect the chatting server from other port'  # the documentation
 
 
+# TODO remove threads
 class Client:
     client_socket = None
+    # TODO remove this
     receiving_thread = None
+    # TODO remove this
     sending_thread = None
 
     """ Methods """
@@ -51,19 +54,21 @@ class Client:
 
     # TODO send always
     def check_and_send(self, word):
-        if word == '--help':
-            print(documentation)
-        elif word == 'connect':
-            self.connect()
-        elif word == 'reconnect':
-            self.exiting()
-            self.connect()
-        elif word == 'exit':
-            self.exiting()
-            return -1
-        else:
-            self.client_socket.sendall(word.encode())
+        # TODO make a methods for those jobs
+        # if word == '--help':
+        #     print(documentation)
+        # elif word == 'connect':
+        #     self.connect()
+        # elif word == 'reconnect':
+        #     self.exiting()
+        #     self.connect()
+        # elif word == 'exit':
+        #     self.exiting()
+        #     return -1
+        # else:
+        self.client_socket.sendall(("$" + word).encode())
 
+    # TODO remove this
     def keep_receiving_from_server(self):
         while 1:
             print(self.receive_from_server())
@@ -76,6 +81,7 @@ class Client:
 
 
 # TODO check client every 5 min
+# TODO accept the header if start in $ or # as planned
 class Server:
     clients_list = []
 
@@ -87,6 +93,7 @@ class Server:
                 client_socket = client[1]
                 client_socket.send(str(msg).encode())
                 print('sent to ' + client[0])
+            # TODO expect exception type
             except:
                 print('Error in sending message to ' + client[0])
                 continue
