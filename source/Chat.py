@@ -18,28 +18,38 @@ class Client:
     """ Methods """
 
     def connect(self):
-        # create client socket
-        self.client_socket = socket(AF_INET, SOCK_STREAM)  # create socket for chatting
-        self.client_socket.connect(('127.0.0.1', chat_port))  # connect with server for chatting
+        try:
+            # create client socket
+            self.client_socket = socket(AF_INET, SOCK_STREAM)  # create socket for chatting
+            self.client_socket.connect(('127.0.0.1', chat_port))  # connect with server for chatting
+            return 1
+        except ConnectionRefusedError:
+            print("Connection refused")
+            return 0
 
+    # TODO remove this
     def start_sending_thread(self):
         self.sending_thread = Thread(self.keep_checking_and_sending())
         self.sending_thread.start()
 
+    # TODO remove this
     def start_receiving_thread(self):
         self.receiving_thread = Thread(self.keep_receiving_from_server())
         self.receiving_thread.start()
 
+    # TODO remove this
     def exiting(self):
         self.receiving_thread.join()
         self.sending_thread.join()
 
+    # TODO remove this
     def keep_checking_and_sending(self):
         while 1:
             word = input('')
             if self.check_and_send(word) == -1:
                 break
 
+    # TODO send always
     def check_and_send(self, word):
         if word == '--help':
             print(documentation)

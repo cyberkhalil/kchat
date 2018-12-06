@@ -1,5 +1,5 @@
 # TODO client who sent the message
-
+# TODO press enter = click on send message button
 ########################################################################################################################
 import sys
 from threading import Thread
@@ -26,25 +26,37 @@ def request_username():
 
 
 def show_help():
-    QtWidgets.QMessageBox().information(QtWidgets.QWidget(), 'Help', 'This is KChat application , You can user it '
-                                                                     'to chat with any client when there is a chat '
-                                                                     'server')
+    show_information_msg('Help',
+                         'This is KChat application , You can use it to chat with any client when there is a chat '
+                         'server')
 
 
 def show_about():
-    QtWidgets.QMessageBox().information(QtWidgets.QWidget(), 'About', 'About')
+    show_information_msg('About', 'KChat is a chatting program , you can use it to chat with any other one using the '
+                                  'same program if there is a chat server both of you.')
+
+
+def show_information_msg(title, information):
+    QtWidgets.QMessageBox().information(QtWidgets.QWidget(), title, information)
+
+
+def show_error(title, error_msg):
+    QtWidgets.QMessageBox().critical(QtWidgets.QWidget(), title, error_msg)
 
 
 def window():
     def connect():
-        print('Connect')
-        client.connect()
-        username = str(request_username())
-        print(username)
-        client.check_and_send(username)
-        msg_txt_edt.setEnabled(1)
-        send_msg_btn.setEnabled(1)
-        Thread(target=keep_receiving_from_server, args=[]).start()
+        print("Connecting")
+        if client.connect():
+            username = str(request_username())
+            print(username)
+            client.check_and_send(username)
+            msg_txt_edt.setEnabled(1)
+            send_msg_btn.setEnabled(1)
+            Thread(target=keep_receiving_from_server, args=[]).start()
+        else:
+            print("Connection failed")
+            show_error("Connection failed", "Please check the server and try to connect again")
 
     def send_msg():
         print('sending message')
@@ -71,8 +83,7 @@ def window():
     # Menu properties
     menu_bar = QtWidgets.QMenuBar(w)
 
-
-# Connection Menu
+    # Connection Menu
     connection_menu = menu_bar.addMenu('Connection')
     connect_action = connection_menu.addAction('Connect')
     connect_action.triggered.connect(connect)
