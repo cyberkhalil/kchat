@@ -3,19 +3,9 @@ from threading import Thread  # import Thread class
 
 chat_port = 1234  # the server used port
 
-# TODO remove this
-documentation = 'This is chatting program \n' \
-                '       --help : to print this documentation again \n' \
-                '       connect : to connect the chatting server \n' \
-                '       exit : to exit and close chatting server connection \n' \
-                '       reconnect : to reconnect the chatting server from other port'  # the documentation
 
-
-# TODO make a reconnect method
 class Client:
     client_socket = None
-
-    """ Methods """
 
     def connect(self):
         try:
@@ -42,15 +32,29 @@ class Client:
         self.client_socket.sendall(("$" + word).encode())
 
     # TODO check if received a command or a message
-    def receive_from_server(self):
-        return self.client_socket.recv(1024).decode()
+    def receive_message_from_server(self):
+        msg = self.client_socket.recv(1024).decode()
+        if msg.startswith("$"):
+            return msg[1:]
+        elif msg.startswith("#"):
+            self.check_command(msg)
+
+    # TODO implement this method
+    def check_command(self, msg):
+        pass
 
     def request_members(self):
         self.send_msg('#request_client_members')
 
 
-# TODO check client every 5 min
-# TODO accept the header if start in $ or # as planned
+"""
+    TODO :-
+        * check client every 5 min
+        * accept the header if start in $ or # as planned
+        * comments on the code
+"""
+
+
 class Server:
     clients_list = []
 
@@ -73,14 +77,14 @@ class Server:
 
         print(client_address + '> established new connection')
 
-        client_socket.send(b'#request username')
+        client_socket.send(b'#user')
         username = client_socket.recv(1024).decode()
         print(client_address + '> username: ' + username)
 
         client_info = [username, client_socket]
         self.clients_list.append(client_info)
         try:
-            client_socket.send(('Server: Welcome ' + username + ', you can start chatting  ^_^').encode())
+            client_socket.send(('$server: Welcome ' + username + ', you can start chatting  ^_^').encode())
 
             while 1:
                 msg = str(client_socket.recv(1024).decode())
@@ -101,8 +105,7 @@ class Server:
     def run(self):
         server_socket = socket(AF_INET, SOCK_STREAM)  # using TCP
 
-        # open & listen to chat port
-        server_socket.bind(('', chat_port))
+        server_socket.bind(('', chat_port))  # open & listen to chat port
         server_socket.listen(1)
 
         print('The chat server is ready')

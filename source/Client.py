@@ -1,6 +1,10 @@
-# TODO send message to specified client
-# TODO press enter = click on send message button
-# TODO implement methods in Client class using GUI
+"""
+    TODO :-
+        * send message to specified client
+        * press enter = click on send message button
+        * implement methods in Client class using GUI
+"""
+
 ########################################################################################################################
 import sys
 from threading import Thread
@@ -22,7 +26,7 @@ def request_username():
         else:
             return 'Guest'
     else:
-        username = request_username()
+        return request_username()
 
 
 def show_help():
@@ -68,7 +72,7 @@ def window():
             receive_from_server()
 
     def receive_from_server():
-        msg = client.receive_from_server()
+        msg = client.receive_message_from_server()
         print('msg received')
         messages_txt_edt.append(msg)
 
