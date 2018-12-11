@@ -19,6 +19,7 @@ class Client:
 
     # TODO implement sending exit message to the server and stop the stop socket
     def exiting(self):
+        self.client_socket.send("#exit".encode())
         self.client_socket.close()
 
     """     
@@ -94,9 +95,10 @@ class Server:
             while 1:
                 msg = str(client_socket.recv(1024).decode())
                 if msg == '':
+                    print("bad")
                     continue
                 elif msg.startswith('#'):
-                    self.check_server_command()
+                    self.check_server_command(msg)
                     print(client_info[0] + '> exiting')
                     break
                 else:
@@ -104,9 +106,9 @@ class Server:
                     self.send_to_all("$" + client_info[0] + "$" + msg)
 
         except:
-            print(client_info[0] + '> leaving')
-            self.clients_list.remove(client_info)
-            client_socket.close()
+            print(client_info[0] + '> leaving for error')
+        self.clients_list.remove(client_info)
+        client_socket.close()
 
     def run(self):
         server_socket = socket(AF_INET, SOCK_STREAM)  # using TCP
@@ -121,5 +123,5 @@ class Server:
             print(len(self.clients_list))
             Thread(group=None, target=self.do_when_receive_client, args=(client_socket, address)).start()
 
-    def check_server_command(self):
+    def check_server_command(self, command):
         print('check_server_command')

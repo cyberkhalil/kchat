@@ -48,10 +48,6 @@ def show_error(title, error_msg):
     QtWidgets.QMessageBox().critical(QtWidgets.QWidget(), title, error_msg)
 
 
-def exit_clicked():
-    sys.exit()
-
-
 def window():
     def connect():
         print("Connecting")
@@ -80,6 +76,10 @@ def window():
         print('msg received')
         messages_txt_edt.append(msg)
 
+    def window_exit():
+        client.exiting()
+        msg_txt_edt.setEnabled(0)
+
     app = QtWidgets.QApplication([])
 
     # Window properties
@@ -96,7 +96,7 @@ def window():
     connect_action = connection_menu.addAction('Connect')
     connect_action.triggered.connect(connect)
     exit_action = connection_menu.addAction('Exit')
-    exit_action.triggered.connect(exit_clicked)
+    exit_action.triggered.connect(window_exit)
 
     # Help Action
     help_action = menu_bar.addAction('Help')
