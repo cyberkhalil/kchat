@@ -19,7 +19,8 @@ class Client:
 
     # TODO implement sending exit message to the server and stop the stop socket
     def exiting(self):
-        print("Not implemented yet")
+        self.client_socket.close()
+        self.client_socket = None
 
     """     
     TODO implement those methods :-
@@ -29,15 +30,20 @@ class Client:
     """
 
     def send_msg(self, word):
-        self.client_socket.sendall(("$" + word).encode())
+        self.client_socket.sendall(word.encode())
 
     # TODO check if received a command or a message
     def receive_message_from_server(self):
-        msg = self.client_socket.recv(1024).decode()
-        if msg.startswith("$"):
-            return msg[1:]
+        msg = str(self.client_socket.recv(1024).decode())
+
+        if msg.startswith("$") & ("$" in msg[1:]):
+            msg = list(msg[1:])
+            index = msg.index("$")
+            msg[index] = ":"
+            msg = "".join(msg)
+            return msg
         elif msg.startswith("#"):
-            self.check_command(msg)
+            self.check_command(msg[:5])
 
     # TODO implement this method
     def check_command(self, msg):
@@ -84,7 +90,7 @@ class Server:
         client_info = [username, client_socket]
         self.clients_list.append(client_info)
         try:
-            client_socket.send(('$server: Welcome ' + username + ', you can start chatting  ^_^').encode())
+            client_socket.send(('$server$ Welcome ' + username + ', you can start chatting  ^_^').encode())
 
             while 1:
                 msg = str(client_socket.recv(1024).decode())
@@ -92,15 +98,16 @@ class Server:
                     continue
                 elif msg.startswith('#'):
                     self.check_server_command()
-                    print(client_address + '> exiting')
+                    print(client_info[0] + '> exiting')
                     break
                 else:
-                    print(client_address + '> sending ' + msg)
-                    self.send_to_all(msg)
+                    print(client_info[0] + '> sending ' + msg)
+                    self.send_to_all("$" + client_info[0] + "$" + msg)
 
         except:
-            print(client_address + '> leaving')
+            print(client_info[0] + '> leaving')
             self.clients_list.remove(client_info)
+            client_socket.close()
 
     def run(self):
         server_socket = socket(AF_INET, SOCK_STREAM)  # using TCP
