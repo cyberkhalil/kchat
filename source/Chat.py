@@ -20,7 +20,6 @@ class Client:
     # TODO implement sending exit message to the server and stop the stop socket
     def exiting(self):
         self.client_socket.close()
-        self.client_socket = None
 
     """     
     TODO implement those methods :-

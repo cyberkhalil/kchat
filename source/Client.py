@@ -48,6 +48,10 @@ def show_error(title, error_msg):
     QtWidgets.QMessageBox().critical(QtWidgets.QWidget(), title, error_msg)
 
 
+def exit_clicked():
+    sys.exit()
+
+
 def window():
     def connect():
         print("Connecting")
@@ -92,7 +96,7 @@ def window():
     connect_action = connection_menu.addAction('Connect')
     connect_action.triggered.connect(connect)
     exit_action = connection_menu.addAction('Exit')
-    exit_action.triggered.connect(app.exit)
+    exit_action.triggered.connect(exit_clicked)
 
     # Help Action
     help_action = menu_bar.addAction('Help')
