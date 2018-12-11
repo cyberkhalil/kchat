@@ -68,12 +68,12 @@ def window():
         msg_txt_edt.setText('')
 
     def keep_receiving_from_server():
-        while 1:
+        while client.isAlive:
             receive_from_server()
 
     def receive_from_server():
-        msg = client.receive_message_from_server()
-        print('msg received')
+        msg = client.receive_from_server()
+        print("msg received")
         messages_txt_edt.append(msg)
 
     def window_exit():

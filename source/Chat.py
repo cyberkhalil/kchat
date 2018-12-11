@@ -1,17 +1,26 @@
 from socket import *  # library for sockets
 from threading import Thread  # import Thread class
 
-chat_port = 1234  # the server used port
+
+class ChatProtocol:
+    chat_port = 1234  # the server used port
+    connect_command = b"#conn"
+    user_command = b"#user"
+    users_list_command = b"#ulst"
+    help_command = b"help"
+    exit_command = b"#exit"
 
 
 class Client:
     client_socket = None
+    isAlive = False
 
     def connect(self):
         try:
             # create client socket
             self.client_socket = socket(AF_INET, SOCK_STREAM)  # create socket for chatting
-            self.client_socket.connect(('127.0.0.1', chat_port))  # connect with server for chatting
+            self.client_socket.connect(('127.0.0.1', ChatProtocol.chat_port))  # connect with server for chatting
+            self.isAlive = True
             return 1
         except ConnectionRefusedError:
             print("Connection refused")
@@ -19,8 +28,9 @@ class Client:
 
     # TODO implement sending exit message to the server and stop the stop socket
     def exiting(self):
-        self.client_socket.send("#exit".encode())
+        self.client_socket.send(ChatProtocol.exit_command)
         self.client_socket.close()
+        self.isAlive = False
 
     """     
     TODO implement those methods :-
@@ -33,7 +43,7 @@ class Client:
         self.client_socket.sendall(word.encode())
 
     # TODO check if received a command or a message
-    def receive_message_from_server(self):
+    def receive_from_server(self):
         msg = str(self.client_socket.recv(1024).decode())
 
         if msg.startswith("$") & ("$" in msg[1:]):
@@ -98,9 +108,11 @@ class Server:
                     print("bad")
                     continue
                 elif msg.startswith('#'):
-                    self.check_server_command(msg)
-                    print(client_info[0] + '> exiting')
-                    break
+                    if msg == "#exit":
+                        print(client_info[0] + '> exiting')
+                        break
+                    else:
+                        print("not valid command :" + msg)
                 else:
                     print(client_info[0] + '> sending ' + msg)
                     self.send_to_all("$" + client_info[0] + "$" + msg)
@@ -113,15 +125,11 @@ class Server:
     def run(self):
         server_socket = socket(AF_INET, SOCK_STREAM)  # using TCP
 
-        server_socket.bind(('', chat_port))  # open & listen to chat port
+        server_socket.bind(('', ChatProtocol.chat_port))  # open & listen to chat port
         server_socket.listen(1)
 
         print('The chat server is ready')
 
         while 1:
             client_socket, address = server_socket.accept()
-            print(len(self.clients_list))
             Thread(group=None, target=self.do_when_receive_client, args=(client_socket, address)).start()
-
-    def check_server_command(self, command):
-        print('check_server_command')
