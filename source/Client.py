@@ -53,8 +53,8 @@ def window():
         print("Connecting")
         if client.connect():
             username = str(request_username())
-            print(username)
-            client.send_msg(username)
+            client.username = username
+            client.send_username()
             msg_txt_edt.setEnabled(1)
             send_msg_btn.setEnabled(1)
             Thread(target=keep_receiving_from_server, args=[]).start()
@@ -69,7 +69,10 @@ def window():
 
     def keep_receiving_from_server():
         while client.isAlive:
-            receive_from_server()
+            try:
+                receive_from_server()
+            except:
+                print("error in receiving from server \n client.isAlive = " + str(client.isAlive))
 
     def receive_from_server():
         msg = client.receive_from_server()
@@ -77,7 +80,7 @@ def window():
         messages_txt_edt.append(msg)
 
     def window_exit():
-        client.exiting()
+        client.exit()
         msg_txt_edt.setEnabled(0)
 
     app = QtWidgets.QApplication([])
