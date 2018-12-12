@@ -42,6 +42,9 @@ class Client:
 
     # TODO implement sending exit message to the server and stop the stop socket
     def exit(self):
+        if not self.isAlive:
+            print("Socket isn't alive so you can't send exit message using exit()")
+            return
         self.client_socket.send(ChatProtocol.exit_command_b)
         self.client_socket.close()
         self.isAlive = False
@@ -57,7 +60,7 @@ class Client:
         if not self.isAlive:
             print("Socket isn't alive so you can't send_msg(" + word + ")")
             return
-        self.client_socket.sendall(word.encode())
+        self.client_socket.sendall(("$" + word).encode())
 
     # TODO check if received a command or a message
     def receive_from_server(self):
@@ -90,7 +93,7 @@ class Client:
         if not self.isAlive:
             print("Socket isn't alive so you can't request_members()")
             return
-        self.send_msg('#request_client_members')
+        self.client_socket.sendall(ChatProtocol.users_list_command_b)
 
     def send_username(self):
         if not self.isAlive:
@@ -166,7 +169,9 @@ class Server:
                         self.clients_list.append(client_info)
                     else:
                         print('not valid command "' + msg + '"')
-                else:
+                elif msg.startswith("$"):
+                    # TODO accept messages for specified client
+                    msg = msg[1:]
                     print(client_info[0] + "> sending " + msg)
                     self.send_to_all("$" + client_info[0] + "$ " + msg)
         except:
