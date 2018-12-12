@@ -54,10 +54,10 @@ def window():
         if client.connect():
             username = str(request_username())
             client.username = username
+            Thread(target=keep_receiving_from_server, args=[]).start()
             client.send_username()
             msg_txt_edt.setEnabled(1)
             send_msg_btn.setEnabled(1)
-            Thread(target=keep_receiving_from_server, args=[]).start()
         else:
             print("Connection failed")
             show_error("Connection failed", "Please check the server and try to connect again")

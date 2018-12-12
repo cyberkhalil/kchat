@@ -7,13 +7,20 @@ class ChatProtocol:
     connect_command = "#conn"
     username_command = "#user"
     users_list_command = "#ulst"
-    help_command = "help"
+    help_command = "#help"
     exit_command = "#exit"
+    help_docs = "Welcome to KChat protocol docs \n The commands starts with '#' symbol " \
+                "and the messages starts with '$' symbol \n         commands list :- \n     #conn : This " \
+                "command is used to connect to the server.\n     #user : This command is used to set a new " \
+                "username.\n     #ulst : This command is used to see the other users connected to the server.\n" \
+                "     #help : This command is used to see this docs.\n     #exit : This command is used to exit" \
+                "the connection from server."
     connect_command_b = connect_command.encode()
     username_command_b = username_command.encode()
     users_list_command_b = users_list_command.encode()
     help_command_b = help_command.encode()
     exit_command_b = exit_command.encode()
+    help_docs_b = help_docs.encode()
 
 
 class Client:
@@ -47,11 +54,23 @@ class Client:
     """
 
     def send_msg(self, word):
+        if not self.isAlive:
+            print("Socket isn't alive so you can't send_msg(" + word + ")")
+            return
         self.client_socket.sendall(word.encode())
 
     # TODO check if received a command or a message
     def receive_from_server(self):
-        msg = str(self.client_socket.recv(1024).decode())
+
+        if not self.isAlive:
+            print("Socket isn't alive so you can't receive_from_server()")
+            return
+        try:
+            msg = self.client_socket.recv(1024).decode()
+        except:
+            print("Error in receiving from server")
+            self.isAlive = False
+            return
 
         if msg.startswith("$") & ("$" in msg[1:]):
             msg = list(msg[1:])
@@ -68,9 +87,15 @@ class Client:
         return self.receive_from_server()
 
     def request_members(self):
+        if not self.isAlive:
+            print("Socket isn't alive so you can't request_members()")
+            return
         self.send_msg('#request_client_members')
 
     def send_username(self):
+        if not self.isAlive:
+            print("Socket isn't alive so you can't send_username()")
+            return
         self.client_socket.sendall(ChatProtocol.username_command_b + self.username.encode())
 
 
@@ -103,32 +128,37 @@ class Server:
         client_address = str(client_address)  # the need for address is just as string
 
         # If didn't receive connect command from client then return and stop the thread
-        if not client_socket.recv(1024) == ChatProtocol.connect_command_b:
+        client_msg = client_socket.recv(1024).decode().strip()
+        while not client_msg == ChatProtocol.connect_command:
             print("Client " + client_address + " didn't send connect command")
-            return
+            client_msg = client_socket.recv(1024).decode().strip()
 
         print(client_address + '> established new connection')
 
         client_socket.send(ChatProtocol.username_command_b)  # request username
-        username = str(client_socket.recv(1024).decode())
-        if not username.startswith("#user"):
+        client_msg = client_socket.recv(1024).decode().strip()
+        while not client_msg.startswith("#user"):
             print("Client " + client_address + " didn't get username from " + client_address)
-            return
-        username = username[5:].strip()
-        print(client_address + '> username: ' + username)
+            client_msg = client_socket.recv(1024).decode().strip()
+
+        username = client_msg[5:].strip()
+        print(client_address + '> username: ' + client_msg)
 
         client_info = [username, client_socket]
         self.clients_list.append(client_info)
         try:
             client_socket.send(("$server$ Welcome " + username + ", you can start chatting  ^_^").encode())
             while 1:
-                msg = client_socket.recv(1024).decode()
+                msg = client_socket.recv(1024).decode().strip()
                 if msg == "":
                     break
 
                 elif msg.startswith("#"):
-                    if msg == "#exit":
+                    if msg == ChatProtocol.exit_command:
                         break
+                    elif msg == ChatProtocol.help_command:
+                        client_socket.send(ChatProtocol.help_docs_b)
+
                     else:
                         print("not valid command :" + msg)
                 else:
