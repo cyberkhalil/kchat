@@ -151,16 +151,21 @@ class Server:
             while 1:
                 msg = client_socket.recv(1024).decode().strip()
                 if msg == "":
-                    break
+                    continue
 
                 elif msg.startswith("#"):
                     if msg == ChatProtocol.exit_command:
                         break
                     elif msg == ChatProtocol.help_command:
                         client_socket.send(ChatProtocol.help_docs_b)
-
+                    elif msg.startswith(ChatProtocol.username_command):
+                        username = msg[5:].strip()
+                        print(client_address + '> changing his username to ' + username)
+                        self.clients_list.remove(client_info)
+                        client_info[0] = username
+                        self.clients_list.append(client_info)
                     else:
-                        print("not valid command :" + msg)
+                        print('not valid command "' + msg + '"')
                 else:
                     print(client_info[0] + "> sending " + msg)
                     self.send_to_all("$" + client_info[0] + "$ " + msg)
