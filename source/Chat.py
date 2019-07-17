@@ -1,7 +1,7 @@
 from socket import *  # library for sockets
 from threading import Thread  # import Thread class
 
-
+# try
 class KChatProtocol:
     chat_port = 1234  # the server used port
     connect_command = "#conn"  # used in the first time to ensure from the connection.
