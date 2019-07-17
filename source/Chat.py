@@ -1,8 +1,8 @@
 from socket import *  # library for sockets
 from threading import Thread  # import Thread class
 
-# try
 class KChatProtocol:
+    chat_ip = 'khalil2535.sytes.net'  # the server used port
     chat_port = 1234  # the server used port
     connect_command = "#conn"  # used in the first time to ensure from the connection.
     username_command = "#user"  # used to change the username of a client.
@@ -37,7 +37,7 @@ class Client:
         try:
             # create client socket
             self.client_socket = socket(AF_INET, SOCK_STREAM)  # create socket for chatting
-            self.client_socket.connect(('127.0.0.1', KChatProtocol.chat_port))  # connect with server for chatting
+            self.client_socket.connect((KChatProtocol.chat_ip, KChatProtocol.chat_port))  # connect with server for chatting
             self.client_socket.send(KChatProtocol.connect_command_b)
             self.isAlive = True
             return 1

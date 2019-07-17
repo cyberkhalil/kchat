@@ -12,7 +12,7 @@ from threading import Thread
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QStandardItemModel
 
-from Chat import Client
+from source.Chat import Client
 
 client = Client()
 
